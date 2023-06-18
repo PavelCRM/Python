@@ -1,8 +1,13 @@
 import os
+import random
 
-def batch_rename_files(directory, desired_name, num_digits, source_extension, target_extension, name_range=None):
+def batch_rename_files(directory, desired_name, min_digits, max_digits, source_extension, target_extension, name_range=None):
+    # Получаем путь к каталогу с файлами из текущего модуля
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    target_directory = os.path.join(current_directory, directory)
+
     # Получаем список файлов в указанном каталоге
-    files = os.listdir(directory)
+    files = os.listdir(target_directory)
 
     # Фильтруем файлы по расширению
     source_files = [file for file in files if file.endswith(source_extension)]
@@ -25,20 +30,26 @@ def batch_rename_files(directory, desired_name, num_digits, source_extension, ta
 
     # Перебираем файлы и выполняем переименование
     for i, file in enumerate(source_files):
-        # Генерируем порядковый номер с указанным количеством цифр
+        # Генерируем случайное количество цифр в порядковом номере файла
+        num_digits = random.randint(min_digits, max_digits)
         count = str(i).zfill(num_digits)
 
         # Формируем новое имя файла
         new_name = f"{base_name}{count}.{target_extension}"
 
         # Получаем полный путь к файлу
-        file_path = os.path.join(directory, file)
+        file_path = os.path.join(target_directory, file)
 
         # Получаем полный путь к новому файлу
-        new_file_path = os.path.join(directory, new_name)
+        new_file_path = os.path.join(target_directory, new_name)
 
-        # Переименовываем файл
-        os.rename(file_path, new_file_path)
+        # Запрашиваем подтверждение на переименование файла
+        confirmation = input(f"Переименовать файл {file} в {new_name}? (Y/N): ")
+        if confirmation.lower() == 'y':
+            # Переименовываем файл
+            os.rename(file_path, new_file_path)
+            # Выводим информацию о переименовании
+            print(f"Переименован файл: {file} -> {new_name}")
+        else:
+            print(f"Пропущено переименование файла: {file}")
 
-        # Выводим информацию о переименовании
-        print(f"Переименован файл: {file} -> {new_name}")
